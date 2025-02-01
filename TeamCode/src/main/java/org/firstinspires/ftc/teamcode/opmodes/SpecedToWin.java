@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Commands.IntakeAutoCommand;
 import org.firstinspires.ftc.teamcode.Commands.IntakeSpecCommand;
 import org.firstinspires.ftc.teamcode.Commands.ScoreCommand;
 import org.firstinspires.ftc.teamcode.Commands.TiltGoToPosition;
+import org.firstinspires.ftc.teamcode.Commands.TiltHang;
 import org.firstinspires.ftc.teamcode.Commands.WristDeposit;
 import org.firstinspires.ftc.teamcode.Commands.WristIntake;
 import org.firstinspires.ftc.teamcode.Commands.WristSample;
@@ -48,6 +49,7 @@ public class SpecedToWin extends CommandOpMode {
         TriggerAnalogButton scoreTrigger =
                 new TriggerAnalogButton(gamepadC,GamepadKeys.Trigger.RIGHT_TRIGGER,0.7);
 
+
         //drive
         drive.setDefaultCommand(
                 new DriveFieldCentric(
@@ -74,7 +76,10 @@ public class SpecedToWin extends CommandOpMode {
                         new InstantCommand(intake::stop),
                         new WristStow(wrist),
                 new ExtensionGoToPosition(extendo,ExtensionGoToPosition.STOW_POSITION)),
-                new TiltGoToPosition(tilt,TiltGoToPosition.STOW)));
+                new SequentialCommandGroup (
+                        new TiltGoToPosition(tilt,TiltGoToPosition.PRE_STOW),
+                        new TiltGoToPosition(tilt,TiltGoToPosition.STOW)) // the slow stow
+        ));
 
         //score spec
         gamepadC.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed( new SequentialCommandGroup(
@@ -113,18 +118,16 @@ public class SpecedToWin extends CommandOpMode {
                         new WristIntake(wrist, true)
                 )
         );
-        //finish hang
-        gamepadD.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-                new SequentialCommandGroup(
-                        new InstantCommand(()->{TiltSubsystem.PID_SPEED=1;}),
-                        new InstantCommand(()->{TiltSubsystem.KP=0.008;}),
-                        new TiltGoToPosition(tilt, TiltGoToPosition.STOW)
-                )
-        );
         //reset imu
         gamepadD.getGamepadButton(GamepadKeys.Button.START).whenPressed(drive::resetIMU);
 
-
+        // hang
+        gamepadD.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whileHeld(
+                new TiltHang(tilt)
+                );
+        gamepadD.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenReleased(
+                new TiltGoToPosition(tilt, TiltGoToPosition.STOW)
+        );
     }
     @Override
     public void run(){

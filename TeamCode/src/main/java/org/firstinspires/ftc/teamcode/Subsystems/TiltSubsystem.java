@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -13,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Config
 public class TiltSubsystem extends SubsystemBase {
-    private static double ACCEPTABLE_POSITION_TOLERANCE_DEGREES = 20.0d;
+    private static double ACCEPTABLE_POSITION_TOLERANCE_DEGREES = 15.0d; // made slightly smaller
     private static int HORIZONTAL_ENCODER_VALUE = 0;
     private static double KF = 0.2d;
     private static double KI = 0.0d;
@@ -31,6 +34,8 @@ public class TiltSubsystem extends SubsystemBase {
     private Motor tilt_motor;
     private Motor tilt_motor2;
     private VoltageSensor volts;
+
+    private static boolean pidOverride = false;
 
     public TiltSubsystem(HardwareMap hMap, Telemetry telemetry2) {
         volts=hMap.get(VoltageSensor.class, "Control Hub");
@@ -50,6 +55,7 @@ public class TiltSubsystem extends SubsystemBase {
     }
 
     public void setTargetAngle(double targetAngle2) {
+        pidOverride = false;
         this.targetAngle = targetAngle2;
     }
 
@@ -83,8 +89,15 @@ public class TiltSubsystem extends SubsystemBase {
         this.telemetry.addData("- output: ", (Object) Double.valueOf(output));
         this.telemetry.addData("radians", (Object) Double.valueOf(Math.toRadians(currentAngle)));
         //if(volts.getVoltage()<13.5)output = output * (13.5/getVoltage) * kV;
-        tilt.set(output);
+        if(!pidOverride)tilt.set(output);
+
         callTelemetry();
+    }
+
+    public void setPower(double power)
+    {
+        pidOverride = true;
+        tilt.set(power);
     }
 
     private void callTelemetry() {

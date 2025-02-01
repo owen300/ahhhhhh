@@ -51,7 +51,7 @@ public class WristSubsystem extends SubsystemBase {
     }
 
     public void setWristSample() {
-        wristServo.setPosition(0.44d);
-        wristurnServo.setPosition(0.56d);
+        wristServo.setPosition(0.44d+0.05d);
+        wristurnServo.setPosition(0.56d-0.05d);
     }
 }

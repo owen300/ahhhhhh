@@ -4,10 +4,11 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.Subsystems.TiltSubsystem;
 
 public class TiltGoToPosition extends CommandBase {
+    public static double PRE_STOW = 30.0d;
     public static double STOW = 0.0d;
     public static double TELEOP_BUCKETH = 90.5d;
     public static double hang = 105;
-    public static double TELEOP_INTAKE = 0.0d;
+    public static double TELEOP_INTAKE = 5.0d;
     public static double TELEOP_SP = 84.0d;
     public static double TELEOP_SPI = 34.5d;
     private final double targetAngle;
